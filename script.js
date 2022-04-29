@@ -1,8 +1,8 @@
 // Initalization
 const canvas = document.querySelector("canvas");
 const c = canvas.getContext("2d");
-canvas.width = 1350;
-canvas.height = 600;
+canvas.width = innerWidth;
+canvas.height = innerHeight;
 let gravity = 0.5;
 
 class sprite {
@@ -12,17 +12,25 @@ class sprite {
     this.height = 150;
     this.velocity = velocity;
     this.color = color;
-    this.attack = {
-      position: {
-        x: this.position.x,
-        y: this.position.y
-      }
-    }
+    this.attackBox = {
+      position: this.position,
+      width: 100,
+      height: 50,
+    };
   }
 
   draw() {
     c.fillStyle = this.color;
     c.fillRect(this.position.x, this.position.y, this.width, this.height);
+
+    // attackbox color
+    c.fillStyle = "cyan";
+    c.fillRect(
+      this.attackBox.position.x,
+      this.attackBox.position.y,
+      this.attackBox.width,
+      this.attackBox.height
+    );
   }
 
   update() {
@@ -44,7 +52,8 @@ class sprite {
     // Collision between player - bottom position and enemy - top position
     if (
       player.position.y + player.height <= enemy.position.y &&
-      player.position.y + player.height + player.velocity.y >= enemy.position.y &&
+      player.position.y + player.height + player.velocity.y >=
+        enemy.position.y &&
       player.position.x + player.width >= enemy.position.x &&
       player.position.x <= enemy.position.x + enemy.width
     ) {
@@ -59,6 +68,20 @@ class sprite {
       enemy.position.x <= player.position.x + player.width
     ) {
       enemy.velocity.y = 0;
+    }
+
+    // Collision detecting between both object for attack
+    if (
+      player.attackBox.position.x + player.attackBox.width >= enemy.position.x &&
+      player.position.x <= enemy.attackBox.position.x + enemy.attackBox.width &&
+      player.position.y <= enemy.position.y + enemy.height) {
+
+      console.log(
+        player.attackBox.position.x,
+        player.width,
+        enemy.attackBox.position.x
+
+      );
     }
   }
 }
@@ -93,47 +116,48 @@ const enemy = new sprite(
 
 const key = {
   a: {
-    pressed: false
+    pressed: false,
   },
   d: {
-    pressed: false
+    pressed: false,
   },
   arrowleft: {
-    pressed: false
+    pressed: false,
   },
   arrowright: {
-    pressed: false
-  }
-}
+    pressed: false,
+  },
+};
 function animate() {
   requestAnimationFrame(animate);
   c.fillStyle = "black";
   c.fillRect(0, 0, canvas.width, canvas.height);
+  canvas.width = innerWidth;
+  canvas.height = innerHeight
   player.update();
   enemy.update();
 
   // player movement
   player.velocity.x = 0;
 
-  if(key.a.pressed){
+  if (key.a.pressed) {
     player.velocity.x = -8;
-  } else if(key.d.pressed){
+  } else if (key.d.pressed) {
     player.velocity.x = 8;
   }
 
   // enemy movement
   enemy.velocity.x = 0;
 
-  if(key.arrowleft.pressed){
+  if (key.arrowleft.pressed) {
     enemy.velocity.x = -8;
-  } else if (key.arrowright.pressed){
+  } else if (key.arrowright.pressed) {
     enemy.velocity.x = 8;
   }
 }
 animate();
 
 window.addEventListener("keydown", (event) => {
-  
   switch (event.key) {
     case "w":
       player.velocity.y -= 15;
@@ -146,7 +170,7 @@ window.addEventListener("keydown", (event) => {
     case "d":
       key.d.pressed = true;
       break;
-    
+
     case "8":
       enemy.velocity.y -= 15;
       break;
@@ -154,29 +178,28 @@ window.addEventListener("keydown", (event) => {
     case "4":
       key.arrowleft.pressed = true;
       break;
-  
+
     case "6":
       key.arrowright.pressed = true;
       break;
   }
 });
 
-window.addEventListener('keyup', (e) => {
-  switch(e.key) {
-    case 'a':
-      key.a.pressed = false
+window.addEventListener("keyup", (e) => {
+  switch (e.key) {
+    case "a":
+      key.a.pressed = false;
       break;
 
-    case 'd':
-      key.d.pressed = false
+    case "d":
+      key.d.pressed = false;
       break;
 
-    case '4':
+    case "4":
       key.arrowleft.pressed = false;
-      break
+      break;
 
-    case '6':
+    case "6":
       key.arrowright.pressed = false;
   }
-})
-
+});
